@@ -39,6 +39,23 @@ static long long fib_sequence(long long k)
     return f[k];
 }
 
+static long long fib_fast_doubling(long long k)
+{
+    long long a = 0, b = 1, t1, t2;
+    for (long long i = 1 << (63 - __builtin_clzll(k)); i > 0; i >>= 1) {
+        t1 = a * (2 * b - a);
+        t2 = b * b + a * a;
+        a = t1;
+        b = t2;
+        if (i & k) {
+            t1 = a + b;
+            a = b;
+            b = t1;
+        }
+    }
+    return a;
+}
+
 static int fib_open(struct inode *inode, struct file *file)
 {
     if (!mutex_trylock(&fib_mutex)) {
